@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Your cart · Express Mtaani{% endblock %}
+{% block content %}
+<section class="page">
+  <h1>Your cart</h1>
+  {% if lines %}
+  <p class="lede">From <strong>{{ shop.name }}</strong></p>
+  <form method="post" action="{{ url_for('shop.cart_update') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <table class="table">
+      <thead><tr><th>Item</th><th>Price</th><th>Qty</th><th class="num">Total</th></tr></thead>
+      <tbody>
+      {% for l in lines %}
+        <tr>
+          <td data-label="Item">{{ l.product.name }}</td>
+          <td data-label="Price">{{ l.product.price|kes }}</td>
+          <td data-label="Qty"><input class="qty" type="number" name="qty_{{ l.product.id }}" value="{{ l.qty }}" min="0" max="{{ max_qty }}" aria-label="Quantity of {{ l.product.name }}"></td>
+          <td data-label="Total" class="num">{{ l.total|kes }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+      <tfoot><tr><td colspan="3">Subtotal</td><td class="num"><strong>{{ subtotal|kes }}</strong></td></tr></tfoot>
+    </table>
+    <p class="hint">Set a quantity to 0 to remove an item. The delivery fee is added at checkout.</p>
+    <div class="actions">
+      <button class="btn btn--ghost" type="submit">Update cart</button>
+      <a class="btn btn--primary" href="{{ url_for('shop.checkout') }}">Checkout</a>
+    </div>
+  </form>
+  <form method="post" action="{{ url_for('shop.cart_clear') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button class="btn btn--text" type="submit">Empty cart</button>
+  </form>
+  {% else %}
+  <p class="empty">Your cart is empty.</p>
+  <a class="btn btn--primary" href="{{ url_for('shop.home') }}">Browse products</a>
+  {% endif %}
+</section>
+{% endblock %}

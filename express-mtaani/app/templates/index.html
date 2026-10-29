@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="home-hero">
+  <div class="home-hero__text">
+    <h1>Shop local.<br>Get it delivered.</h1>
+    <p class="lede">Meals, groceries and everyday items from shops near you, brought to your door by a rider you can follow on the map.</p>
+    <form class="search" method="get" action="{{ url_for('shop.home') }}" role="search">
+      <label class="sr-only" for="q">Search products</label>
+      <input id="q" name="q" type="search" value="{{ q }}" placeholder="Search for chapati, milk, soap…" maxlength="60">
+      {% if category %}<input type="hidden" name="category" value="{{ category }}">{% endif %}
+      {% if shop_id %}<input type="hidden" name="shop" value="{{ shop_id }}">{% endif %}
+      <button class="btn btn--primary" type="submit">Search</button>
+    </form>
+  </div>
+  <div class="home-hero__art">
+    <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Express Mtaani: a rider on a motorbike carrying a delivery box">
+  </div>
+</section>
+
+<section class="page page--wide">
+  <nav class="chips" aria-label="Categories">
+    <a class="chip {{ 'is-active' if not category }}" href="{{ url_for('shop.home', q=q or None, shop=shop_id) }}">All</a>
+    {% for key, label in categories %}
+      <a class="chip {{ 'is-active' if category == key }}" href="{{ url_for('shop.home', category=key, q=q or None, shop=shop_id) }}">{{ label }}</a>
+    {% endfor %}
+  </nav>
+
+  {% if shops %}
+  <nav class="chips chips--shops" aria-label="Shops">
+    <span class="chips__label">Shops:</span>
+    <a class="chip chip--small {{ 'is-active' if not shop_id }}" href="{{ url_for('shop.home', category=category or None, q=q or None) }}">All shops</a>
+    {% for s in shops %}
+      <a class="chip chip--small {{ 'is-active' if shop_id == s.id }}" href="{{ url_for('shop.home', shop=s.id, category=category or None, q=q or None) }}">{{ s.name }}</a>
+    {% endfor %}
+  </nav>
+  {% endif %}
+
+  {% if products %}
+  <div class="grid">
+    {% for p in products %}{% include "_product_card.html" %}{% endfor %}
+  </div>
+  <p class="hint">Each order comes from one shop. Delivery fee is worked out from the distance to you.</p>
+  {% else %}
+  <p class="empty">No products found{% if q or category or shop_id %} for those filters. <a href="{{ url_for('shop.home') }}">Clear filters</a>{% else %} yet. Check back soon{% endif %}.</p>
+  {% endif %}
+</section>
+{% endblock %}

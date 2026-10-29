@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Create your account · Express Mtaani{% endblock %}
+{% block content %}
+<section class="page page--narrow">
+  <h1>Create your account</h1>
+  
+  {% if errors %}<div class="alert alert--error" role="alert"><ul>{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul></div>{% endif %}
+  <form method="post" class="stack" novalidate>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="next" value="{{ request.args.get('next', '') }}">
+    <label class="field"><span class="field__label">Full name</span>
+      <input name="name" autocomplete="name" required maxlength="80" value="{{ values.name }}"></label>
+    <label class="field"><span class="field__label">Email</span>
+      <input name="email" type="email" autocomplete="email" required value="{{ values.email }}"></label>
+    <label class="field"><span class="field__label">Phone number</span>
+      <input name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="0712 345 678" required value="{{ values.phone }}"></label>
+    <label class="field"><span class="field__label">Password (8+ characters)</span>
+      <input name="password" type="password" autocomplete="new-password" required minlength="8"></label>
+    <label class="field"><span class="field__label">Repeat password</span>
+      <input name="password2" type="password" autocomplete="new-password" required minlength="8"></label>
+    <button class="btn btn--primary btn--block" type="submit">Create account</button>
+  </form>
+  <p class="hint">Already have an account? <a href="{{ url_for('auth.login') }}">Sign in</a>.</p>
+</section>
+{% endblock %}

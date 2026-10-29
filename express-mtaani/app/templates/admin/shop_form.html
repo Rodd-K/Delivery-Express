@@ -1,0 +1,34 @@
+{% extends "admin/base.html" %}
+{% block title %}{{ 'Edit' if editing else 'Add' }} shop · Express Mtaani Admin{% endblock %}
+{% block admin %}
+<h1>{{ 'Edit shop' if editing else 'Add a shop' }}</h1>
+{% if errors %}<div class="alert alert--error" role="alert"><ul>{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul></div>{% endif %}
+<form method="post" class="stack form-narrow" novalidate>
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <input type="hidden" name="lat" id="lat" value="{{ values.lat }}">
+  <input type="hidden" name="lng" id="lng" value="{{ values.lng }}">
+  <label class="field"><span class="field__label">Shop name</span>
+    <input name="name" required maxlength="120" value="{{ values.name }}"></label>
+  <label class="field"><span class="field__label">Description (optional)</span>
+    <input name="description" maxlength="255" value="{{ values.description }}"></label>
+  <label class="field"><span class="field__label">Address</span>
+    <input name="address" required maxlength="255" value="{{ values.address }}"></label>
+  <div>
+    <span class="field__label">Pickup point (click the map or drag the pin)</span>
+    <div id="map" class="map" data-map>
+      {% if not geo_key %}<p class="map-note">Add GEOAPIFY_API_KEY to your .env file to set the location on a map.</p>{% endif %}
+    </div>
+    <p id="pin-status" class="hint" aria-live="polite">No location set yet.</p>
+  </div>
+  <label class="radio"><input type="checkbox" name="is_active" {{ 'checked' if values.is_active }}> Open for orders</label>
+  <div class="actions">
+    <button class="btn btn--primary" type="submit">Save shop</button>
+    <a class="btn btn--ghost" href="{{ url_for('admin.shops') }}">Cancel</a>
+  </div>
+</form>
+<script id="em-data" type="application/json">{{ page_data|tojson }}</script>
+{% endblock %}
+{% block scripts %}
+{% include "_maps_loader.html" %}
+<script src="{{ url_for('static', filename='js/pin-picker.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,37 @@
+{% extends "admin/base.html" %}
+{% block title %}Riders · Express Mtaani Admin{% endblock %}
+{% block admin %}
+<h1>Riders</h1>
+{% if riders %}
+<div class="table-wrap"><table class="table">
+  <thead><tr><th>Rider</th><th>Contact</th><th>Deliveries</th><th>Status</th><th></th></tr></thead>
+  <tbody>
+  {% for r in riders %}
+    <tr>
+      <td data-label="Rider">{{ r.name }}</td>
+      <td data-label="Contact">{{ r.phone }}<br><span class="hint">{{ r.email }}</span></td>
+      <td data-label="Deliveries">{{ delivered.get(r.id, 0) }}</td>
+      <td data-label="Status">
+        {% if not r.approved %}<span class="badge badge--placed">Waiting for approval</span>
+        {% elif not r.active %}<span class="badge badge--cancelled">Deactivated</span>
+        {% elif r.is_fresh() %}<span class="badge badge--on_the_way">Online</span>
+        {% else %}<span class="badge">Offline</span>{% endif %}
+      </td>
+      <td class="actions-cell">
+        {% if not r.approved %}
+          <form method="post" action="{{ url_for('admin.rider_approve', user_id=r.id) }}" class="inline-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn btn--primary btn--small" type="submit">Approve</button></form>
+        {% elif r.active %}
+          <form method="post" action="{{ url_for('admin.rider_deactivate', user_id=r.id) }}" class="inline-form" onsubmit="return confirm('Deactivate {{ r.name }}?');">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="link-button" type="submit">Deactivate</button></form>
+        {% else %}
+          <form method="post" action="{{ url_for('admin.rider_activate', user_id=r.id) }}" class="inline-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="link-button" type="submit">Reactivate</button></form>
+        {% endif %}
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table></div>
+{% else %}<p class="empty">No riders yet. Riders sign up from the "Ride with us" link and appear here for approval.</p>{% endif %}
+{% endblock %}

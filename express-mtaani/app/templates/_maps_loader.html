@@ -1,0 +1,5 @@
+{# Loads Leaflet (map library) once. Tiles, search and routes come from Geoapify. #}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>window.EM_GEO_KEY = {{ geo_key|tojson }};</script>
+<script src="{{ url_for('static', filename='js/maps-common.js') }}"></script>

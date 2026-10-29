@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}My orders · Express Mtaani{% endblock %}
+{% block content %}
+<section class="page">
+  <h1>My orders</h1>
+  {% if orders %}
+  <ul class="order-list">
+    {% for o in orders %}
+    <li>
+      <a class="order-card" href="{{ url_for('shop.track', token=o.public_token) }}">
+        <span class="order-card__title">Order #{{ o.id }} · {{ o.pickup_name }}</span>
+        <span class="order-card__meta">{{ o.items_summary }}</span>
+        <span class="order-card__meta">{{ o.total|kes }} · {{ o.created_at.strftime('%d %b %Y, %H:%M') }} UTC</span>
+        <span class="badge badge--{{ o.status }}">{{ o.status_label }}</span>
+      </a>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p class="empty">You have not placed any orders yet.</p>
+  <a class="btn btn--primary" href="{{ url_for('shop.home') }}">Browse products</a>
+  {% endif %}
+</section>
+{% endblock %}

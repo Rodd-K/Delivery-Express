@@ -1,0 +1,12 @@
+{% extends "admin/base.html" %}
+{% block title %}Orders · Express Mtaani Admin{% endblock %}
+{% block admin %}
+<h1>Orders</h1>
+<nav class="chips" aria-label="Filter by status">
+  <a class="chip {{ 'is-active' if not status }}" href="{{ url_for('admin.orders') }}">All</a>
+  {% for key, label in statuses.items() %}
+    <a class="chip {{ 'is-active' if status == key }}" href="{{ url_for('admin.orders', status=key) }}">{{ label }}</a>
+  {% endfor %}
+</nav>
+{% include "admin/_orders_table.html" %}
+{% endblock %}

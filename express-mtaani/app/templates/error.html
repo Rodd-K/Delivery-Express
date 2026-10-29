@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}{{ code }} · Express Mtaani{% endblock %}
+{% block content %}
+<section class="page page--narrow">
+  <h1>{{ code }}</h1>
+  <p class="lede">{{ message }}</p>
+  <a class="btn btn--primary" href="{{ url_for('shop.home') }}">Back to home</a>
+</section>
+{% endblock %}

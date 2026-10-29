@@ -1,0 +1,51 @@
+{% extends "admin/base.html" %}
+{% block title %}Dashboard · Express Mtaani Admin{% endblock %}
+{% block admin %}
+<h1>Welcome back, {{ current_user.first_name }}</h1>
+<p class="hint">Here is what is happening today.</p>
+
+<div class="cards">
+  <div class="card card--lime"><span class="card__num">{{ stats.orders_today }}</span><span class="card__label">Orders today</span></div>
+  <div class="card"><span class="card__num">{{ stats.active }}</span><span class="card__label">Active deliveries</span></div>
+  <div class="card"><span class="card__num">{{ stats.sales_today|kes }}</span><span class="card__label">Delivered sales today</span></div>
+  <div class="card"><span class="card__num">{{ stats.riders_online }}</span><span class="card__label">Riders online</span></div>
+</div>
+
+{% if stats.waiting or stats.pending_riders or stats.cash_to_chase %}
+<div class="alert alert--info">
+  {% if stats.waiting %}<a href="{{ url_for('admin.orders', status='placed') }}">{{ stats.waiting }} order(s) waiting for a rider</a>. {% endif %}
+  {% if stats.pending_riders %}<a href="{{ url_for('admin.riders') }}">{{ stats.pending_riders }} rider(s) waiting for approval</a>. {% endif %}
+  {% if stats.cash_to_chase %}{{ stats.cash_to_chase }} delivered order(s) with cash not yet confirmed.{% endif %}
+</div>
+{% endif %}
+
+<div class="two-col">
+  <div class="panel">
+    <h2>Live riders</h2>
+    <div id="map" class="map" data-map>
+      {% if not geo_key %}<p class="map-note">Add GEOAPIFY_API_KEY to your .env file to see riders on the map.</p>{% endif %}
+    </div>
+    <p id="rider-count" class="hint" aria-live="polite"></p>
+  </div>
+  <div class="panel">
+    <h2>Orders by status</h2>
+    <ul class="bars">
+      {% for key, label, count in status_counts %}
+      <li><span class="bars__label">{{ label }}</span>
+        <span class="bars__track"><span class="bars__fill bars__fill--{{ key }}" style="width: {{ (count / max_count * 100)|round|int }}%"></span></span>
+        <span class="bars__num">{{ count }}</span></li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+
+<div class="panel">
+  <div class="row"><h2>Recent orders</h2><a href="{{ url_for('admin.orders') }}">View all</a></div>
+  {% include "admin/_orders_table.html" %}
+</div>
+<script id="em-data" type="application/json">{{ page_data|tojson }}</script>
+{% endblock %}
+{% block scripts %}
+{% include "_maps_loader.html" %}
+<script src="{{ url_for('static', filename='js/admin-map.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Start a new cart? · Express Mtaani{% endblock %}
+{% block content %}
+<section class="page page--narrow">
+  <h1>Start a new cart?</h1>
+  <p>Your cart has items from <strong>{{ current_shop.name if current_shop else 'another shop' }}</strong>. Each order can come from one shop only, so adding <strong>{{ product.name }}</strong> from <strong>{{ product.shop.name }}</strong> means starting a new cart.</p>
+  <form method="post" action="{{ url_for('shop.cart_add') }}" class="stack">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="product_id" value="{{ product.id }}">
+    <input type="hidden" name="qty" value="{{ qty }}">
+    <input type="hidden" name="next" value="{{ back }}">
+    <input type="hidden" name="replace" value="1">
+    <button class="btn btn--primary btn--block" type="submit">Start new cart with {{ product.name }}</button>
+    <a class="btn btn--ghost btn--block" href="{{ url_for('shop.cart') }}">Keep my current cart</a>
+  </form>
+</section>
+{% endblock %}
