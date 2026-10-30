@@ -1,0 +1,32 @@
+{% extends "admin/base.html" %}
+{% block title %}Products · Express Mtaani Admin{% endblock %}
+{% block admin %}
+<div class="row"><h1>Products</h1><a class="btn btn--primary" href="{{ url_for('admin.product_new') }}">Add product</a></div>
+<nav class="chips chips--shops" aria-label="Filter by shop">
+  <a class="chip chip--small {{ 'is-active' if not shop_id }}" href="{{ url_for('admin.products') }}">All shops</a>
+  {% for s in shops %}<a class="chip chip--small {{ 'is-active' if shop_id == s.id }}" href="{{ url_for('admin.products', shop=s.id) }}">{{ s.name }}</a>{% endfor %}
+</nav>
+{% if products %}
+<div class="table-wrap"><table class="table">
+  <thead><tr><th>Product</th><th>Shop</th><th>Category</th><th>Price</th><th>Status</th><th></th></tr></thead>
+  <tbody>
+  {% for p in products %}
+    <tr>
+      <td data-label="Product">{{ p.name }}</td>
+      <td data-label="Shop">{{ p.shop.name }}</td>
+      <td data-label="Category">{{ p.category_label }}</td>
+      <td data-label="Price">{{ p.price|kes }}</td>
+      <td data-label="Status"><span class="badge {{ 'badge--on_the_way' if p.is_available else 'badge--cancelled' }}">{{ 'For sale' if p.is_available else 'Hidden' }}</span></td>
+      <td class="actions-cell">
+        <a href="{{ url_for('admin.product_edit', product_id=p.id) }}">Edit</a>
+        <form method="post" action="{{ url_for('admin.product_toggle', product_id=p.id) }}" class="inline-form">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button class="link-button" type="submit">{{ 'Hide' if p.is_available else 'Show' }}</button>
+        </form>
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table></div>
+{% else %}<p class="empty">No products yet. Add a shop first, then add products.</p>{% endif %}
+{% endblock %}

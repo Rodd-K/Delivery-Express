@@ -1,0 +1,66 @@
+{% extends "admin/base.html" %}
+{% block title %}Order #{{ order.id }} · Express Mtaani Admin{% endblock %}
+{% block admin %}
+<p><a href="{{ url_for('admin.orders') }}">&larr; All orders</a></p>
+<div class="row"><h1>Order #{{ order.id }}</h1><span class="badge badge--{{ order.status }}">{{ order.status_label }}</span></div>
+
+<div class="two-col">
+  <dl class="summary">
+    <div><dt>Customer</dt><dd>{{ order.customer_name }} · {{ order.customer_phone }}</dd></div>
+    <div><dt>Collect from</dt><dd>{{ order.pickup_name }}</dd></div>
+    <div><dt>Deliver to</dt><dd>{{ order.dest_address }}</dd></div>
+    <div><dt>Rider</dt><dd>{{ order.rider.name ~ ' · ' ~ order.rider.phone if order.rider else 'Unassigned' }}</dd></div>
+    <div><dt>Placed</dt><dd>{{ order.created_at.strftime('%d %b %Y, %H:%M') }} UTC</dd></div>
+    <div><dt>Payment</dt><dd>{{ 'Cash on delivery' if order.payment_method == 'cash_on_delivery' else order.payment_method }} ·
+      <span class="badge {{ 'badge--delivered' if order.payment_status == 'paid' else 'badge--placed' }}">{{ 'Paid' if order.payment_status == 'paid' else 'Not paid yet' }}</span></dd></div>
+  </dl>
+
+  <div class="panel">
+    <h2>Items</h2>
+    <table class="table">
+      <tbody>
+      {% for i in order.items %}
+        <tr><td>{{ i.quantity }} × {{ i.name }}</td><td class="num">{{ i.line_total|kes }}</td></tr>
+      {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr><td>Subtotal</td><td class="num">{{ order.subtotal|kes }}</td></tr>
+        <tr><td>Delivery fee</td><td class="num">{{ order.delivery_fee|kes }}</td></tr>
+        <tr><td><strong>Total</strong></td><td class="num"><strong>{{ order.total|kes }}</strong></td></tr>
+      </tfoot>
+    </table>
+  </div>
+</div>
+
+{% if can_assign %}
+<div class="panel">
+  <h2>{{ 'Reassign rider' if order.rider else 'Assign a rider' }}</h2>
+  <form method="post" action="{{ url_for('admin.order_assign', order_id=order.id) }}" class="inline-fields">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <label class="field"><span class="field__label">Rider (nearest to the shop first)</span>
+      <select name="rider_id" required>
+        <option value="">Choose a rider…</option>
+        {% for o in options %}
+          <option value="{{ o.rider.id }}">{{ o.rider.name }} · {{ (o.km ~ ' km from shop') if o.km is not none else 'offline' }}</option>
+        {% endfor %}
+      </select></label>
+    <button class="btn btn--primary" type="submit">Assign</button>
+  </form>
+</div>
+{% endif %}
+
+<div class="actions">
+  {% if order.status == 'delivered' and order.payment_status == 'unpaid' %}
+  <form method="post" action="{{ url_for('admin.order_mark_paid', order_id=order.id) }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button class="btn btn--primary" type="submit">Mark cash as received</button>
+  </form>
+  {% endif %}
+  {% if can_cancel %}
+  <form method="post" action="{{ url_for('admin.order_cancel', order_id=order.id) }}" onsubmit="return confirm('Cancel this order?');">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button class="btn btn--ghost" type="submit">Cancel order</button>
+  </form>
+  {% endif %}
+</div>
+{% endblock %}

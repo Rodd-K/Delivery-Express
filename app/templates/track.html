@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Track your order · Express Mtaani{% endblock %}
+{% block content %}
+<section class="page page--track">
+  <h1>Track your order</h1>
+  <p class="lede" id="track-headline">{{ order.status_label }}</p>
+
+  <ol class="steps" id="steps" aria-label="Order progress">
+    <li data-step="placed">Order placed</li>
+    <li data-step="accepted">Rider assigned</li>
+    <li data-step="on_the_way">On the way</li>
+    <li data-step="delivered">Delivered</li>
+  </ol>
+
+  <div id="map" class="map map--tall" data-map>
+    {% if not geo_key %}<p class="map-note">The live map needs a Geoapify key. Status updates still work below.</p>{% endif %}
+  </div>
+
+  <div class="track-info" aria-live="polite">
+    <p id="eta" class="track-info__eta"></p>
+    <p id="freshness" class="hint"></p>
+  </div>
+
+  <dl class="summary">
+    <div><dt>Collect from</dt><dd>{{ order.pickup_name }}</dd></div>
+    <div><dt>Deliver to</dt><dd>{{ order.dest_address }}</dd></div>
+    <div><dt>Items</dt><dd>{{ order.items_summary }}</dd></div>
+    <div><dt>Total</dt><dd>{{ order.total|kes }} ({{ order.subtotal|kes }} items + {{ order.delivery_fee|kes }} delivery) · {{ 'Cash on delivery' if order.payment_method == 'cash_on_delivery' else order.payment_method }}</dd></div>
+  </dl>
+</section>
+<script id="em-data" type="application/json">{{ page_data|tojson }}</script>
+{% endblock %}
+{% block scripts %}
+{% include "_maps_loader.html" %}
+<script src="{{ url_for('static', filename='js/track.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Order #{{ order.id }} · Express Mtaani{% endblock %}
+{% block content %}
+<section class="page page--rider">
+  <p><a href="{{ url_for('rider.dashboard') }}">&larr; All deliveries</a></p>
+  <div class="row">
+    <h1>Order #{{ order.id }}</h1>
+    <span class="badge badge--{{ order.status }}" id="status-badge">{{ order.status_label }}</span>
+  </div>
+
+  <dl class="summary">
+    <div><dt>Customer</dt><dd>{{ order.customer_name }} · <a href="tel:{{ order.customer_phone }}">{{ order.customer_phone }}</a></dd></div>
+    <div><dt>Collect from</dt><dd>{{ order.pickup_name }}</dd></div>
+    <div><dt>Deliver to</dt><dd>{{ order.dest_address }}</dd></div>
+    <div><dt>Items</dt><dd>{{ order.items_summary }}</dd></div>
+    <div><dt>Payment</dt><dd>{% if order.payment_method == 'cash_on_delivery' %}<strong>Collect {{ order.total|kes }} in cash</strong>{% else %}{{ order.payment_method }}{% endif %}</dd></div>
+  </dl>
+
+  <div id="map" class="map map--tall" data-map>
+    {% if not geo_key %}<p class="map-note">Add GEOAPIFY_API_KEY to your .env file to see the route.</p>{% endif %}
+  </div>
+
+  <p id="route-info" class="track-info__eta" aria-live="polite"></p>
+
+  <div class="rider-actions">
+    <a id="nav-link" class="btn btn--ghost btn--block" target="_blank" rel="noopener" href="#">Navigate</a>
+    <button id="share-btn" class="btn btn--ghost btn--block" type="button">Share my location</button>
+    <button id="status-btn" class="btn btn--primary btn--block" type="button"></button>
+    <button id="release-btn" class="btn btn--text" type="button">Release this order</button>
+    <button id="sim-btn" class="btn btn--text" type="button" hidden>Simulate a ride (testing)</button>
+  </div>
+  <p id="rider-msg" class="hint" role="status" aria-live="polite"></p>
+</section>
+<script id="em-data" type="application/json">{{ page_data|tojson }}</script>
+{% endblock %}
+{% block scripts %}
+{% include "_maps_loader.html" %}
+<script src="{{ url_for('static', filename='js/rider.js') }}"></script>
+{% endblock %}

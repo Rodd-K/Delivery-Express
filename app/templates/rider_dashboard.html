@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Deliveries · Express Mtaani{% endblock %}
+{% block content %}
+<section class="page page--rider">
+  <div class="row">
+    <h1>Hi {{ current_user.first_name }}</h1>
+    <span class="badge" id="online-badge">Offline</span>
+  </div>
+
+  <div class="stat-row">
+    <div class="stat"><span class="stat__num">{{ delivered_count }}</span><span class="stat__label">Deliveries completed</span></div>
+    <div class="stat"><span class="stat__num">{{ fees }}</span><span class="stat__label">Delivery fees</span></div>
+  </div>
+
+  {% if active %}
+  <div class="alert alert--info">
+    <strong>You have a delivery in progress.</strong>
+    Order #{{ active.id }} · {{ active.status_label }}
+    <a class="btn btn--primary btn--small" href="{{ url_for('rider.order', order_id=active.id) }}">Open delivery</a>
+  </div>
+  {% endif %}
+
+  <div class="panel">
+    <h2>Go online</h2>
+    <p class="hint">Go online and keep this page open. You will see new orders from shops near you, nearest first.</p>
+    <button id="online-btn" class="btn btn--primary btn--block" type="button">Go online</button>
+    <p id="online-msg" class="hint" role="status" aria-live="polite"></p>
+  </div>
+
+  <div class="panel" id="available-panel">
+    <h2>Orders near you</h2>
+    <p id="available-note" class="hint">Go online to see nearby orders.</p>
+    <ul id="available" class="order-list"></ul>
+  </div>
+</section>
+<script id="em-data" type="application/json">{{ page_data|tojson }}</script>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/maps-common.js') }}"></script>
+<script src="{{ url_for('static', filename='js/rider-dashboard.js') }}"></script>
+{% endblock %}

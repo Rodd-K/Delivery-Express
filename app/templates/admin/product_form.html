@@ -1,0 +1,31 @@
+{% extends "admin/base.html" %}
+{% block title %}{{ 'Edit' if editing else 'Add' }} product · Express Mtaani Admin{% endblock %}
+{% block admin %}
+<h1>{{ 'Edit product' if editing else 'Add a product' }}</h1>
+{% if errors %}<div class="alert alert--error" role="alert"><ul>{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul></div>{% endif %}
+{% if not shops %}<div class="alert alert--info">Add a <a href="{{ url_for('admin.shop_new') }}">shop</a> first.</div>{% endif %}
+<form method="post" class="stack form-narrow" novalidate>
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <label class="field"><span class="field__label">Shop</span>
+    <select name="shop_id" required>
+      {% for s in shops %}<option value="{{ s.id }}" {{ 'selected' if values.shop_id|string == s.id|string }}>{{ s.name }}</option>{% endfor %}
+    </select></label>
+  <label class="field"><span class="field__label">Name</span>
+    <input name="name" required maxlength="120" value="{{ values.name }}"></label>
+  <label class="field"><span class="field__label">Category</span>
+    <select name="category" required>
+      {% for key, label in categories %}<option value="{{ key }}" {{ 'selected' if values.category == key }}>{{ label }}</option>{% endfor %}
+    </select></label>
+  <label class="field"><span class="field__label">Description (optional)</span>
+    <input name="description" maxlength="255" value="{{ values.description }}"></label>
+  <label class="field"><span class="field__label">Price (KES, whole shillings)</span>
+    <input name="price" type="number" inputmode="numeric" min="1" max="1000000" required value="{{ values.price }}"></label>
+  <label class="field"><span class="field__label">Image link (optional, must start with https://)</span>
+    <input name="image_url" type="url" maxlength="500" value="{{ values.image_url }}"></label>
+  <label class="radio"><input type="checkbox" name="is_available" {{ 'checked' if values.is_available }}> Available for customers to order</label>
+  <div class="actions">
+    <button class="btn btn--primary" type="submit">Save product</button>
+    <a class="btn btn--ghost" href="{{ url_for('admin.products') }}">Cancel</a>
+  </div>
+</form>
+{% endblock %}

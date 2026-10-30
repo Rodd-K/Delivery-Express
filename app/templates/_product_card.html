@@ -1,0 +1,24 @@
+<article class="product">
+  <div class="product__img">
+    {% if p.image_url %}
+      <img src="{{ p.image_url }}" alt="" loading="lazy" referrerpolicy="no-referrer">
+    {% else %}
+      <span class="product__initial" aria-hidden="true">{{ p.name[0] }}</span>
+    {% endif %}
+    <span class="product__cat">{{ p.category_label }}</span>
+  </div>
+  <div class="product__body">
+    <h3 class="product__name">{{ p.name }}</h3>
+    <p class="product__shop">{{ p.shop.name }}</p>
+    {% if p.description %}<p class="product__desc">{{ p.description }}</p>{% endif %}
+    <div class="product__foot">
+      <strong class="product__price">{{ p.price|kes }}</strong>
+      <form method="post" action="{{ url_for('shop.cart_add') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="product_id" value="{{ p.id }}">
+        <input type="hidden" name="next" value="{{ request.full_path }}">
+        <button class="btn btn--primary btn--small" type="submit" aria-label="Add {{ p.name }} to cart">Add to cart</button>
+      </form>
+    </div>
+  </div>
+</article>

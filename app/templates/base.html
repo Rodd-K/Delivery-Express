@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+  <title>{% block title %}Express Mtaani{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="site-header">
+    <a class="brand" href="{{ url_for('shop.home') }}">
+      <span class="brand__mark" aria-hidden="true"></span>Express Mtaani
+    </a>
+    <nav class="site-nav" aria-label="Main">
+      {% if current_user.is_authenticated %}
+        {% if current_user.role == 'admin' %}
+          <a href="{{ url_for('admin.dashboard') }}">Admin</a>
+        {% elif current_user.role == 'rider' %}
+          <a href="{{ url_for('rider.dashboard') }}">Deliveries</a>
+        {% else %}
+          <a href="{{ url_for('shop.my_orders') }}">My orders</a>
+        {% endif %}
+        {% if current_user.role == 'customer' %}
+          <a href="{{ url_for('shop.cart') }}">Cart{% if cart_count %} ({{ cart_count }}){% endif %}</a>
+        {% endif %}
+        <form method="post" action="{{ url_for('auth.logout') }}" class="inline-form">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" class="link-button">Sign out ({{ current_user.first_name }})</button>
+        </form>
+      {% else %}
+        <a href="{{ url_for('shop.cart') }}">Cart{% if cart_count %} ({{ cart_count }}){% endif %}</a>
+        <a href="{{ url_for('auth.login') }}">Sign in</a>
+        <a href="{{ url_for('auth.register') }}">Sign up</a>
+        <a href="{{ url_for('auth.rider_register') }}">Ride with us</a>
+      {% endif %}
+    </nav>
+  </header>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="flashes" role="status">
+      {% for category, message in messages %}
+        <p class="flash flash--{{ category }}">{{ message }}</p>
+      {% endfor %}
+    </div>
+    {% endif %}
+  {% endwith %}
+
+  <main id="main">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="site-footer">
+    <p>Your delivery. Your neighborhood.</p>
+  </footer>
+
+  {% block scripts %}{% endblock %}
+</body>
+</html>

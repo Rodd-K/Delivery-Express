@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Checkout · Express Mtaani{% endblock %}
+{% block content %}
+<section class="page">
+  <h1>Where should we deliver?</h1>
+  <p class="lede">Search for your address, then drag the pin to your exact door or gate.</p>
+
+  {% if errors %}
+  <div class="alert alert--error" role="alert"><ul>{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul></div>
+  {% endif %}
+
+  <form class="order-form" method="post" action="{{ url_for('shop.checkout') }}" id="order-form" novalidate>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="dest_lat" id="dest_lat" value="{{ values.dest_lat }}">
+    <input type="hidden" name="dest_lng" id="dest_lng" value="{{ values.dest_lng }}">
+
+    <div class="order-form__map">
+      <label class="field__label" for="place-search">Find your address</label>
+      <div class="place-search">
+        <input id="place-search" type="search" role="combobox" aria-expanded="false" aria-controls="place-results"
+               aria-autocomplete="list" autocomplete="off" placeholder="Search your estate, street or building">
+        <ul id="place-results" class="place-results" role="listbox" hidden></ul>
+      </div>
+      <div id="map" class="map map--tall" data-map>
+        {% if not geo_key %}<p class="map-note">Add GEOAPIFY_API_KEY to your .env file to turn on the map.</p>{% endif %}
+      </div>
+      <div class="map-tools">
+        <button type="button" class="btn btn--ghost btn--small" id="use-location">Use my current location</button>
+        <span id="pin-status" class="hint" aria-live="polite">No pin dropped yet.</span>
+      </div>
+    </div>
+
+    <div class="order-form__fields">
+      <div class="summary summary--cart">
+        <strong>{{ shop.name }}</strong>
+        {% for l in lines %}<span>{{ l.qty }} × {{ l.product.name }} <em>{{ l.total|kes }}</em></span>{% endfor %}
+        <span class="summary__row">Subtotal <em>{{ subtotal|kes }}</em></span>
+        <span class="summary__row">Delivery fee <em id="fee-estimate">Drop your pin to see it</em></span>
+        <span class="summary__row summary__total">Total <em id="total-estimate">{{ subtotal|kes }}</em></span>
+      </div>
+
+      <label class="field"><span class="field__label">Name for the rider</span>
+        <input name="customer_name" autocomplete="name" required maxlength="80" value="{{ values.customer_name }}"></label>
+      <label class="field"><span class="field__label">Phone number</span>
+        <input name="customer_phone" type="tel" inputmode="tel" autocomplete="tel" required value="{{ values.customer_phone }}"></label>
+      <label class="field"><span class="field__label">Address or landmark for the rider</span>
+        <input name="dest_address" id="dest_address" required maxlength="255" placeholder="Gate B, next to the pharmacy" value="{{ values.dest_address }}"></label>
+
+      <fieldset class="field pay">
+        <legend class="field__label">Payment</legend>
+        <label class="radio"><input type="radio" name="payment_method" value="cash_on_delivery" checked> Cash on delivery</label>
+        <label class="radio radio--disabled"><input type="radio" name="payment_method" value="mpesa" disabled> M-Pesa <em>(coming soon)</em></label>
+      </fieldset>
+
+      <button class="btn btn--primary btn--block" type="submit">Place order</button>
+      <p class="hint">The final delivery fee is calculated by the server when you place the order.</p>
+    </div>
+  </form>
+</section>
+<script id="em-data" type="application/json">{{ page_data|tojson }}</script>
+<script id="em-subtotal" type="application/json">{{ subtotal }}</script>
+{% endblock %}
+{% block scripts %}
+{% include "_maps_loader.html" %}
+<script src="{{ url_for('static', filename='js/checkout.js') }}"></script>
+{% endblock %}
